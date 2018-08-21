@@ -226,7 +226,7 @@ class Revision extends Eloquent
      *
      * @return User user responsible for the change
      */
-    public function userResponsible()
+    public function userResponsible($provider = 'users')
     {
         if (empty($this->user_id)) { return false; }
         if (class_exists($class = '\Cartalyst\Sentry\Facades\Laravel\Sentry')
@@ -234,14 +234,13 @@ class Revision extends Eloquent
         ) {
             return $class::findUserById($this->user_id);
         } else {
-            $user_model = app('config')->get('auth.model');
-
+            
+            $user_model = app('config')->get('auth.providers.'.$provider.'.model');
+            
             if (empty($user_model)) {
-                $user_model = app('config')->get('auth.providers.users.model');
-                if (empty($user_model)) {
-                    return false;
-                }
+                return false;
             }
+
             if (!class_exists($user_model)) {
                 return false;
             }
